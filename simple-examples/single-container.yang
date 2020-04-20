@@ -1,0 +1,25 @@
+module person {
+    yang-version "1";
+    namespace "yang:person";
+    prefix "foo";
+    organization "companyX";
+    contact "company@company.com";
+
+    description
+        "A test module";
+    revision 2014-01-01 {
+        description "april-fools";
+        reference "fooled-you";
+    }
+
+    container address {
+        description
+            "A container";
+
+        leaf street {
+            type string;
+            description
+              "A test leaf for a string test";
+        }
+    }
+}
