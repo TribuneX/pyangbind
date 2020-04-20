@@ -56,6 +56,7 @@ def build_simple_classes(ctx, modules):
 		code += '\n\n'
 		code += generate_class_signature(module_name.capitalize())
 		code += generate_table_name(module_name)
+		code += generate_primary_key()
 
 		for child in filter_valid_children(module):
 			if child.i_children:
@@ -66,6 +67,7 @@ def build_simple_classes(ctx, modules):
 			code += "\n\n"
 			code += generate_class_signature(subclass.arg.capitalize())
 			code += generate_table_name(subclass.arg)
+			code += generate_primary_key()
 
 			for child in subclass.i_children:
 				code += generate_string_attribute(child)
@@ -74,11 +76,18 @@ def build_simple_classes(ctx, modules):
 		return code
 
 
+def generate_primary_key():
+	return '    id = sla.Column(sla.Integer, primary_key=True)\n'
+
+
 def generate_class_signature(class_name):
-	return 'class %s:\n' % (class_name)
+	return 'class %s(Base):\n' % (class_name)
 
 
 def generate_table_name(module_name):
+	# TODO: Replace with some more advanced logic
+	if module_name[-1] == 's':
+		module_name = module_name + "e"
 	return '    __tablename__ = "%ss"\n' % (module_name)
 
 
@@ -87,10 +96,11 @@ def generate_string_attribute(child):
 
 
 def generate_orm_relationship(child):
-	return '\n    %s = orm.relationship("%s", back_populates="%ss")\n' % (
+	orm_relation = '\n    address_id = sla.Column(sla.Integer, sla.ForeignKey("addresses.id"))\n'
+	orm_relation += '    %s = orm.relationship("%s")\n' % (
 		child.arg,
-		child.arg.capitalize(),
-		child.parent.arg)
+		child.arg.capitalize())
+	return orm_relation
 
 
 def write_code_to_file(code, fd):
@@ -103,6 +113,7 @@ def filter_valid_children(module):
 
 
 def generate_imports(code):
+	code += "from desire.db.models import Base\n"
 	code += "from sqlalchemy import orm\n"
 	code += "import sqlalchemy as sla\n"
 	return code

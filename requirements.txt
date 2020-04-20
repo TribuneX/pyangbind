@@ -4,3 +4,5 @@ lxml
 regex
 six
 enum34
+git+https://bitbucket.de-cix.net/scm/cia/desire.git@develop
+

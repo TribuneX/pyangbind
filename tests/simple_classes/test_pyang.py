@@ -1,41 +1,27 @@
 import os
-import subprocess
 import pytest
+from desire.db.models import Base
+from tests.simple_classes.test_base import call_pyang
 
 GENERATED_CODE_FILE = "binding.py"
 
 
 @pytest.fixture
-def call_pyang():
-
-	def _call_pyang(yang_file):
-		# TODO: pyang must be installed!
-		pyang_path = 'pyang'
-		plugin_dir = '../../pyangbind/plugin'
-		pyang_cmd = "{pyang} --plugindir {plugins} -f sqlbind -o {binding} {yang_file}".format(
-			pyang=pyang_path,
-			plugins=plugin_dir,
-			yang_file=yang_file,
-			binding=GENERATED_CODE_FILE
-		)
-		bindings_code = subprocess.check_output(
-			pyang_cmd, shell=True, stderr=subprocess.STDOUT, env={}
-		)
-		exec(bindings_code)
-
-	return _call_pyang
-
-
-@pytest.fixture
 def generate_code(call_pyang):
-	yield call_pyang('person.yang')
-	os.remove(GENERATED_CODE_FILE)
+	yield call_pyang('person.yang', GENERATED_CODE_FILE)
+	# os.remove(GENERATED_CODE_FILE)
 
 
 def test_should_generate_person_class(generate_code):
 	from tests.simple_classes.binding import Person
 
 	assert Person() is not None
+
+
+def test_should_add_sqlalchemy_base_class(generate_code):
+	from tests.simple_classes.binding import Person
+
+	assert isinstance(Person(), Base)
 
 
 def test_should_generate_address_attribute(generate_code):
