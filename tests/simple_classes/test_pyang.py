@@ -33,31 +33,40 @@ def generate_code(call_pyang):
 
 
 def test_should_generate_person_class(generate_code):
-
 	from tests.simple_classes.binding import Person
 
 	assert Person() is not None
 
 
 def test_should_generate_address_attribute(generate_code):
-
 	from tests.simple_classes.binding import Person
 
 	assert_attribute_exists('address', Person())
 
 
 def test_should_generate_subclass_for_container(generate_code):
-
 	from tests.simple_classes.binding import Address
 
 	assert Address() is not None
 
 
 def test_should_generate_street_attribute(generate_code):
-
 	from tests.simple_classes.binding import Address
 
 	assert_attribute_exists('street', Address())
+
+
+def test_orm_relationship(generate_code):
+	verify_string_exists(
+		'orm.relationship("Address", back_populates="persons")')
+
+
+def test_sla_string_column(generate_code):
+	verify_string_exists('street = sla.Column(sla.String)')
+
+
+def verify_string_exists(string):
+	assert open(GENERATED_CODE_FILE, "r").read().find(string)
 
 
 def assert_attribute_exists(attribute, person):
