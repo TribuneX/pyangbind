@@ -9,7 +9,7 @@ GENERATED_CODE_FILE = "binding.py"
 @pytest.fixture
 def generate_code(call_pyang):
 	yield call_pyang('person.yang', GENERATED_CODE_FILE)
-	# os.remove(GENERATED_CODE_FILE)
+	os.remove(GENERATED_CODE_FILE)
 
 
 def test_should_generate_person_class(generate_code):
